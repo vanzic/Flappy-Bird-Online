@@ -72,17 +72,8 @@ async function signUp() {
 supabase.auth.onAuthStateChange(async (event, session) => {
     console.log('Auth state changed:', event, session);
 
-    // Handle email confirmation redirect
-    if (window.location.search.includes('type=signup')) {
-        await handlePostConfirmation();
-        return;
-    }
-
-    if (event === 'USER_UPDATED') {
-        await handleEmailVerificationUpdate();
-    }
-    
     switch (event) {
+
         case 'INITIAL_SESSION':
             // Handle initial load
             break;
@@ -92,6 +83,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
             hideAuth();
             hideVerificationScreen();
             displayLeaderboard();
+            updateUserPanel();
             break;
             
         case 'SIGNED_OUT':
@@ -150,6 +142,8 @@ async function signInWithGoogle() {
 async function signOut() {
     const { error } = await supabase.auth.signOut();
     if (error) console.error('Logout error:', error);
+
+    updateUserPanel();
 }
 
 
@@ -160,7 +154,39 @@ async function signOut() {
 
 
 
-
+async function updateUserPanel() {
+    const { data: { user } } = await supabase.auth.getUser();
+    const guestMessage = document.getElementById('guest-message');
+    const userInfo = document.getElementById('user-info');
+  
+    if (user) {
+      try {
+        const { data: scores, error } = await supabase
+          .from('scores')
+          .select('score')
+          .eq('user_id', user.id)
+          .limit(1);
+  
+        if (error) throw error;
+  
+        const nickname = user.user_metadata.nickname || user.email.split('@')[0];
+        const highScore = scores.length ? scores[0].score : 0;
+  
+        document.getElementById('user-nickname').textContent = nickname;
+        document.getElementById('user-highscore').textContent = highScore;
+  
+        guestMessage.style.display = 'none';
+        userInfo.style.display = 'block';
+      } catch (error) {
+        console.error('Error updating user panel:', error);
+        guestMessage.style.display = 'block';
+        userInfo.style.display = 'none';
+      }
+    } else {
+      guestMessage.style.display = 'block';
+      userInfo.style.display = 'none';
+    }
+  }
 
 
 
@@ -219,6 +245,7 @@ async function saveScore(newScore) {
 
     // Refresh the leaderboard
     displayLeaderboard();
+    updateUserPanel();
 }
 
 async function displayLeaderboard() {
@@ -277,6 +304,17 @@ function showAuthMessage(message, type = 'error') {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 // ======= AUTH UI FUNCTIONS ======= //
 
 function showAuth() {
@@ -325,6 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set up button event listeners
     document.querySelector('#left-panel button').addEventListener('click', showAuth);
     displayLeaderboard();
+    updateUserPanel();
 });
 
 //------------------------------------------------------------------------------------------------------------------
@@ -360,6 +399,7 @@ let gameHold = false;
 
 // initital bird img
 bird.innerHTML = '<img src="img/bird-up.png" class="bird-img"></img>';
+
 
 
 

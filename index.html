@@ -111,6 +111,11 @@
           <button onclick="showAuth()">Sign up to save scores!</button>
         </p>
       </div>
+      <div id="user-info" style="display: none;">
+        <p>Playing as <span id="user-nickname"></span></p>
+        <p>High Score: <span id="user-highscore"></span></p>
+        <button onclick="signOut()">Log Out</button>
+      </div>
     </div>
 
 
@@ -159,10 +164,6 @@
       <h2>Top Scores</h2>
       <ol id="scores-list"></ol>
     </div>
-    
-
-    <button id="logout-btn" onclick="signOut()">Log Out</button>
-
     
     <script src="Main.js"></script>
 

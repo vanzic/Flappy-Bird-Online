@@ -484,6 +484,26 @@ body {
   text-align: center;
   display: none;
 }
+#user-info p {
+  margin: 8px 0;
+  color: #fff;
+}
+
+#user-info button {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#user-info button:hover {
+  background-color: #cc0000;
+}
+
 
 /*
 //------------------------------------------------------------------------------------------------------------------
