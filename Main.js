@@ -390,8 +390,8 @@ let bird = document.getElementsByClassName('bird')[0];
 
 // Gravity and jump strength scaled to outerMid height for responsiveness
 
-const gravity = outerMid.offsetHeight * 0.00023// Scaled gravity strength
-const jumpStrength = -outerMid.offsetHeight * 0.008; // Scaled jump strength
+const gravity = outerMid.offsetHeight * 0.00025// Scaled gravity strength
+const jumpStrength = -outerMid.offsetHeight * 0.0065; // Scaled jump strength
 
 let isJumping = false; 
 const ground = outerMid.offsetHeight - bird.offsetHeight; // Dynamic ground level based on container height
