@@ -381,6 +381,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+
+
 let outerMid = document.getElementsByClassName('outer-mid')[0];
 let outerRect = outerMid.getBoundingClientRect();
 

@@ -790,10 +790,18 @@ input:active{
 
 @media (max-width: 750px) {
 
-  #leaderboard,
-  #left-panel {
+  #leaderboard{
     position: static;
     width: 90vw;
+    margin: 2vh auto;
+  }
+
+  #left-panel{
+    position: fixed;
+    width: 90vw;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
     margin: 2vh auto;
   }
 
