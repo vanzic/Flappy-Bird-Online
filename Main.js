@@ -31,7 +31,7 @@ async function signUp() {
             password,
             options: {
                 data: { nickname },
-                emailRedirectTo: `${window.location.origin}/?verified=true`
+                emailRedirectTo: `${window.location.origin}/?type=signup`
             }
         });
 
@@ -69,22 +69,25 @@ async function signUp() {
 
 async function handlePostConfirmation() {
     try {
-        // Force session refresh after confirmation
         const { data: { user }, error } = await supabase.auth.getUser();
-        
         if (error) throw error;
         
         if (user?.email_confirmed_at) {
             clearVerificationProcess();
-            window.history.replaceState({}, document.title, window.location.pathname);
+            hideVerificationScreen();
             showAuthMessage('Email verified successfully!', 'success');
-            hideAuth();
+            setTimeout(hideAuth, 2000);
+        } else {
+            // Force session refresh if needed
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (session) {
+                await supabase.auth.setSession(session);
+            }
         }
     } catch (error) {
         console.error('Post-confirmation error:', error);
     }
 }
-
 async function handleEmailVerificationUpdate() {
     try {
         const { data: { user }, error } = await supabase.auth.getUser();
@@ -124,6 +127,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
         case 'SIGNED_IN':
             // Handle successful login
             hideAuth();
+            hideVerificationScreen();
             displayLeaderboard();
             break;
             
@@ -136,6 +140,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
             if (user?.email_confirmed_at) {
                 clearVerificationProcess();
                 showAuthMessage('Email verified successfully!', 'success');
+                hideVerificationScreen();
                 setTimeout(hideAuth, 2000);
             }
             break;
@@ -237,6 +242,9 @@ async function checkVerificationStatus() {
 
         if (user?.email_confirmed_at) {
             document.getElementById('verification-timer').textContent = 'Email verified!';
+            setTimeout(() => {
+                hideVerificationScreen();
+            }, 1000);
             return true;
         }
         
@@ -269,7 +277,7 @@ async function resendVerificationEmail() {
             type: 'signup',
             email,
             options: {
-                emailRedirectTo: `${window.location.origin}/?verified=true`
+                emailRedirectTo: `${window.location.origin}/?type=signup`
             }
         });
 
