@@ -81,20 +81,55 @@ async function signOut() {
 }
 
 // ======= SCORE FUNCTIONS ======= //
-async function saveScore(score) {
+async function saveScore(newScore) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { error } = await supabase
+    // 1. First check if the user already has a score
+    const { data: existingScores, error: fetchError } = await supabase
         .from('scores')
-        .insert([{
-            user_id: user.id,
-            nickname: user.user_metadata.nickname || user.email.split('@')[0],
-            score: score
-        }]);
+        .select('score')
+        .eq('user_id', user.id)
+        .limit(1);
 
-    if (error) console.error('Score save error:', error);
-    else displayLeaderboard();
+    if (fetchError) {
+        console.error('Error fetching existing score:', fetchError);
+        return;
+    }
+
+    const nickname = user.user_metadata.nickname || user.email.split('@')[0];
+    
+    // 2. If no existing score, or new score is higher, update/insert
+    if (existingScores.length === 0) {
+        // Insert new score
+        const { error } = await supabase
+            .from('scores')
+            .insert([{
+                user_id: user.id,
+                nickname: nickname,
+                score: newScore
+            }]);
+
+        if (error) console.error('Score save error:', error);
+    } else {
+        const currentHighScore = existingScores[0].score;
+        if (newScore > currentHighScore) {
+            // Update existing score
+            const { error } = await supabase
+                .from('scores')
+                .update({ 
+                    score: newScore,
+                    nickname: nickname,
+                    created_at: new Date().toISOString()
+                })
+                .eq('user_id', user.id);
+
+            if (error) console.error('Score update error:', error);
+        }
+    }
+
+    // Refresh the leaderboard
+    displayLeaderboard();
 }
 
 async function displayLeaderboard() {
