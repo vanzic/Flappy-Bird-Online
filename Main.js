@@ -4,28 +4,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
-// Initialize auth state on load
-(async function initAuth() {
-    // Restore pending verification
-    const pending = localStorage.getItem('pendingVerification');
-    if (pending) {
-        const { email, expires } = JSON.parse(pending);
-        if (Date.now() < expires) {
-            document.getElementById('signup-email').value = email;
-            showVerificationScreen();
-            startVerificationTimer();
-            startVerificationChecks();
-        }
-    }
-    
-    // Initialize auth state
-    await supabase.auth.initialize();
-    
-    // Check URL for confirmation redirect
-    if (window.location.search.includes('verified=true')) {
-        await handlePostConfirmation();
-    }
-})();
 
 // Initialize real-time leaderboard updates
 supabase
@@ -58,12 +36,12 @@ async function signUp() {
         });
 
         if (data.user) {
-            // Store session in localStorage until confirmation
-            localStorage.setItem('pendingVerification', JSON.stringify({
-                email,
-                expires: Date.now() + 600000 // 10 minutes
-            }));
-        }
+        // Store session in localStorage until confirmation
+        localStorage.setItem('pendingVerification', JSON.stringify({
+            email,
+            expires: Date.now() + 600000 // 10 minutes
+        }));
+    }
 
         if (error) throw error;
 
