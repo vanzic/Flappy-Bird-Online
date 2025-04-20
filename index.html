@@ -10,89 +10,93 @@
     <link rel="stylesheet" href="images.css">
     
     
-    <!-- Replace Firebase scripts with Supabase -->
+    <!-- Supabase script -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
 
   <body>  
 
+    <!-- Verification Container Overlay -->
+    <div id="verification-screen" style="display: none;">
+      <button class="verification-close-btn" onclick="hideVerificationScreen()" aria-label="Close">&times;</button>
+      <div class="auth-header">
+        <h2>Verify Your Email</h2>
+        <p>Check your inbox for the verification link</p>
+      </div>
+      <div id="verification-timer"></div>
+      <button id="resend-btn" onclick="resendVerificationEmail()">Resend Email</button>
+    </div>
+
+
+
+
+
     <!-- Login/SignUp Container Overlay -->
     <div id="auth-container" style="display: none;">
       <div class="auth-card">
 
-
-
-        <div id="verification-screen" style="display: none;">
+        <div id="auth-content">
+          <button class="close-btn" onclick="hideAuth()" aria-label="Close">&times;</button>
+    
           <div class="auth-header">
-            <h2>Verify Your Email</h2>
-            <p>Check your inbox for the verification link</p>
+            <h2 class="auth-title">Welcome to Flappy Bird</h2>
+            <p class="auth-subtitle">Join the flock and rise to the top!</p>
           </div>
-          <div id="verification-timer"></div>
-          <button onclick="resendVerificationEmail()">Resend Email</button>
+      
+          <div class="auth-tabs">
+            <button class="tab-btn active" onclick="switchTab('login')" id="login-tab">Login</button>
+            <button class="tab-btn" onclick="switchTab('signup')" id="signup-tab">Sign Up</button>
+          </div>
+      
+          <div class="auth-body">
+            <!-- LOGIN FORM -->
+            <form id="login-form" class="auth-form active" onsubmit="event.preventDefault(); signIn();">
+              <div class="input-group">
+                <input type="email" id="email" placeholder="" required>
+                <label for="email">Email</label>
+              </div>
+      
+              <div class="input-group">
+                <input type="password" id="password" placeholder="" required>
+                <label for="password" >Password</label>
+              </div>
+      
+              <button type="submit" class="auth-btn primary">Continue</button>
+            </form>
+      
+            <!-- SIGNUP FORM -->
+            <form id="signup-form" class="auth-form" onsubmit="event.preventDefault(); signUp();">
+              <div class="input-group">
+                <input type="email" id="signup-email" placeholder="" required>
+                <label for="signup-email">Email</label>
+              </div>
+      
+              <div class="input-group">
+                <input type="text" id="nickname" placeholder="" required>
+                <label for="nickname">Nickname</label>
+              </div>
+      
+              <div class="input-group">
+                <input type="password" id="signup-password" placeholder="" required>
+                <label for="signup-password">Password</label>
+              </div>
+      
+              <button type="submit" class="auth-btn primary">Create Account</button>
+              <div class="auth-separator"><span>or</span></div>
+              
+              <button type="button" class="auth-btn google-btn" onclick="signInWithGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" id="google-logo" alt="Google logo">
+                Continue with Google
+              </button>
+            </form>
+      
+            <p class="auth-footer">
+              <span id="switch-text">Don’t have an account?</span>
+              <button class="switch-mode" onclick="toggleAuthMode()">Sign up instead</button>
+            </p>
+          </div>
         </div>
-
-
-
-
-        <button class="close-btn" onclick="hideAuth()" aria-label="Close">&times;</button>
-    
-        <div class="auth-header">
-          <h2 class="auth-title">Welcome to Flappy Bird</h2>
-          <p class="auth-subtitle">Join the flock and rise to the top!</p>
-        </div>
-    
-        <div class="auth-tabs">
-          <button class="tab-btn active" onclick="switchTab('login')" id="login-tab">Login</button>
-          <button class="tab-btn" onclick="switchTab('signup')" id="signup-tab">Sign Up</button>
-        </div>
-    
-        <div class="auth-body">
-          <!-- LOGIN FORM -->
-          <form id="login-form" class="auth-form active" onsubmit="event.preventDefault(); signIn();">
-            <div class="input-group">
-              <input type="email" id="email" placeholder="" required>
-              <label for="email">Email</label>
-            </div>
-    
-            <div class="input-group">
-              <input type="password" id="password" placeholder="" required>
-              <label for="password" >Password</label>
-            </div>
-    
-            <button type="submit" class="auth-btn primary">Continue</button>
-          </form>
-    
-          <!-- SIGNUP FORM -->
-          <form id="signup-form" class="auth-form" onsubmit="event.preventDefault(); signUp();">
-            <div class="input-group">
-              <input type="email" id="signup-email" placeholder="" required>
-              <label for="signup-email">Email</label>
-            </div>
-    
-            <div class="input-group">
-              <input type="text" id="nickname" placeholder="" required>
-              <label for="nickname">Nickname</label>
-            </div>
-    
-            <div class="input-group">
-              <input type="password" id="signup-password" placeholder="" required>
-              <label for="signup-password">Password</label>
-            </div>
-    
-            <button type="submit" class="auth-btn primary">Create Account</button>
-            <div class="auth-separator"><span>or</span></div>
-            
-            <button type="button" class="auth-btn google-btn" onclick="signInWithGoogle()">
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" id="google-logo" alt="Google logo">
-              Continue with Google
-            </button>
-          </form>
-    
-          <p class="auth-footer">
-            <span id="switch-text">Don’t have an account?</span>
-            <button class="switch-mode" onclick="toggleAuthMode()">Sign up instead</button>
-          </p>
-        </div>
+        
     
         <div id="auth-message" class="auth-message"></div>
       </div>

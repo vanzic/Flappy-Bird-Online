@@ -4,6 +4,28 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
+// Initialize auth state on load
+(async function initAuth() {
+    // Restore pending verification
+    const pending = localStorage.getItem('pendingVerification');
+    if (pending) {
+        const { email, expires } = JSON.parse(pending);
+        if (Date.now() < expires) {
+            document.getElementById('signup-email').value = email;
+            showVerificationScreen();
+            startVerificationTimer();
+            startVerificationChecks();
+        }
+    }
+    
+    // Initialize auth state
+    await supabase.auth.initialize();
+    
+    // Check URL for confirmation redirect
+    if (window.location.search.includes('verified=true')) {
+        await handlePostConfirmation();
+    }
+})();
 
 // Initialize real-time leaderboard updates
 supabase
@@ -16,39 +38,135 @@ supabase
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 // ======= AUTH FUNCTIONS ======= //
 async function signUp() {
-    const email = document.getElementById('signup-email').value;
+    const email = document.getElementById('signup-email').value.trim();
     const password = document.getElementById('signup-password').value;
-    const nickname = document.getElementById('nickname').value;
+    const nickname = document.getElementById('nickname').value.trim();
 
-    const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-            data: { nickname }
+    try {
+        setLoadingState(true);
+        showAuthMessage('Creating account...', 'info');
+
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { nickname },
+                emailRedirectTo: `${window.location.origin}/?verified=true`
+            }
+        });
+
+        if (data.user) {
+            // Store session in localStorage until confirmation
+            localStorage.setItem('pendingVerification', JSON.stringify({
+                email,
+                expires: Date.now() + 600000 // 10 minutes
+            }));
         }
-    });
 
-    if (error) {
-        showAuthMessage(error.message);
+        if (error) throw error;
+
+        console.log('Signup data:', data);
+        
+        if (data.user?.identities?.length === 0) {
+            showAuthMessage('Email already registered. Try logging in.');
+            switchTab('login');
+            return;
+        }
+
+        showVerificationScreen();
+        startVerificationTimer();
+        startVerificationChecks();
+
+    } catch (error) {
+        console.error('Signup error:', error);
+        showAuthMessage(error.message || 'Registration failed');
+    } finally {
+        setLoadingState(false);
+    }
+}
+
+
+
+async function handlePostConfirmation() {
+    try {
+        // Force session refresh after confirmation
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        if (error) throw error;
+        
+        if (user?.email_confirmed_at) {
+            clearVerificationProcess();
+            window.history.replaceState({}, document.title, window.location.pathname);
+            showAuthMessage('Email verified successfully!', 'success');
+            hideAuth();
+        }
+    } catch (error) {
+        console.error('Post-confirmation error:', error);
+    }
+}
+
+async function handleEmailVerificationUpdate() {
+    try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) throw error;
+        
+        if (user?.email_confirmed_at) {
+            clearVerificationProcess();
+            showAuthMessage('Email verified successfully!', 'success');
+            setTimeout(hideAuth, 2000);
+        }
+    } catch (error) {
+        console.error('Verification update error:', error);
+    }
+}
+
+
+
+// ======= AUTH STATE HANDLER ======= //
+supabase.auth.onAuthStateChange(async (event, session) => {
+    console.log('Auth state changed:', event, session);
+
+    // Handle email confirmation redirect
+    if (window.location.search.includes('type=signup')) {
+        await handlePostConfirmation();
         return;
     }
+
+    if (event === 'USER_UPDATED') {
+        await handleEmailVerificationUpdate();
+    }
     
-    showVerificationScreen();
-    startVerificationTimer();
-}
+    switch (event) {
+        case 'INITIAL_SESSION':
+            // Handle initial load
+            break;
+            
+        case 'SIGNED_IN':
+            // Handle successful login
+            hideAuth();
+            displayLeaderboard();
+            break;
+            
+        case 'SIGNED_OUT':
+            // Handle logout
+            break;
+            
+        case 'USER_UPDATED':
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user?.email_confirmed_at) {
+                clearVerificationProcess();
+                showAuthMessage('Email verified successfully!', 'success');
+                setTimeout(hideAuth, 2000);
+            }
+            break;
+            
+        case 'PASSWORD_RECOVERY':
+            // Handle password reset
+            break;
+    }
+});
 
 async function signIn() {
     const email = document.getElementById('email').value;
@@ -79,6 +197,128 @@ async function signOut() {
     const { error } = await supabase.auth.signOut();
     if (error) console.error('Logout error:', error);
 }
+
+
+
+let verificationTimer;
+let verificationCheckInterval;
+
+function startVerificationTimer() {
+    clearVerificationProcess(); // Cleanup any existing timers
+    
+    let seconds = 60;
+    const timerElement = document.getElementById('verification-timer');
+    
+    verificationTimer = setInterval(() => {
+        timerElement.textContent = `You can resend in ${seconds} seconds`;
+        
+        if (seconds <= 0) {
+            clearInterval(verificationTimer);
+            timerElement.textContent = "Didn't receive the email?";
+        }
+        seconds--;
+    }, 1000);
+}
+
+function startVerificationChecks() {
+    verificationCheckInterval = setInterval(async () => {
+        const isVerified = await checkVerificationStatus();
+        if (isVerified) clearVerificationProcess();
+    }, 5000);
+}
+
+function clearVerificationProcess() {
+    clearInterval(verificationTimer);
+    clearInterval(verificationCheckInterval);
+}
+
+window.addEventListener('beforeunload', clearVerificationProcess);
+
+
+async function checkVerificationStatus() {
+    try {
+        // First check if we have an existing session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+            // Handle special case for email confirmation
+            if (window.location.search.includes('type=signup')) {
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                
+                if (user?.email_confirmed_at) {
+                    // Clear URL parameters after successful verification
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    return true;
+                }
+            }
+            throw sessionError;
+        }
+
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
+
+        if (user?.email_confirmed_at) {
+            document.getElementById('verification-timer').textContent = 'Email verified!';
+            return true;
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('Verification check error:', error);
+        return false;
+    }
+}
+
+// Cleanup when leaving the page
+window.addEventListener('beforeunload', () => {
+    clearInterval(verificationTimer);
+    clearInterval(verificationCheckInterval);
+});
+
+async function resendVerificationEmail() {
+    const email = document.getElementById('signup-email').value;
+    
+    if (!email) {
+        showAuthMessage('No email found to resend');
+        return;
+    }
+
+    try {
+        setLoadingState(true);
+        showAuthMessage('Sending verification email...', 'info');
+        
+        const { error } = await supabase.auth.resend({
+            type: 'signup',
+            email,
+            options: {
+                emailRedirectTo: `${window.location.origin}/?verified=true`
+            }
+        });
+
+        if (error) throw error;
+        
+        showAuthMessage('New verification email sent!', 'success');
+        startVerificationTimer();
+        
+    } catch (error) {
+        console.error('Resend error:', error);
+        showAuthMessage(error.message || 'Failed to resend email');
+    } finally {
+        setLoadingState(false);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ======= SCORE FUNCTIONS ======= //
 async function saveScore(newScore) {
@@ -152,46 +392,35 @@ async function displayLeaderboard() {
     });
 }
 
-// ======= HELPER FUNCTIONS ======= //
-let verificationTimer;
-function startVerificationTimer() {
-    let seconds = 60;
-    verificationTimer = setInterval(() => {
-        document.getElementById('verification-timer').textContent = 
-            `You can resend in ${seconds} seconds`;
-        if (seconds-- <= 0) clearInterval(verificationTimer);
-    }, 1000);
+
+// ======= VERIFICATION SCREEN FUNCTIONS ======= //
+
+function showVerificationScreen() {
+    document.getElementById('verification-screen').style.display = 'block';
+    hideAuth();
+}
+function hideVerificationScreen(){
+    document.getElementById('verification-screen').style.display = 'none';
 }
 
-async function resendVerificationEmail() {
-    const { error } = await supabase.auth.resend();
-    if (error) showAuthMessage(error.message);
-    else startVerificationTimer();
+
+function setLoadingState(isLoading) {
+    document.querySelectorAll('.auth-btn').forEach(btn => {
+        btn.disabled = isLoading;
+        btn.innerHTML = isLoading ? 
+            '<span class="loader"></span>' : 
+            btn.textContent;
+    });
 }
 
 function showAuthMessage(message, type = 'error') {
     const messageEl = document.getElementById('auth-message');
     messageEl.textContent = message;
-    messageEl.style.color = type === 'error' ? 'red' : 'green';
-    setTimeout(() => messageEl.textContent = '', 3000);
+    messageEl.style.color = type === 'error' ? '#ff4444' : 
+                          type === 'success' ? '#00C851' : 
+                          '#33b5e5';
+    messageEl.style.display = message ? 'block' : 'none';
 }
-
-function showVerificationScreen() {
-    document.querySelectorAll('.auth-form').forEach(f => f.style.display = 'none');
-    document.getElementById('verification-screen').style.display = 'block';
-}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -242,20 +471,7 @@ function toggleAuthMode() {
 document.addEventListener('DOMContentLoaded', function() {
     // Set up button event listeners
     document.querySelector('#left-panel button').addEventListener('click', showAuth);
-
     displayLeaderboard();
-    
-    // Handle auth state changes
-    supabase.auth.onAuthStateChange((event, session) => {
-        if (session) {
-            displayLeaderboard();
-            document.getElementById('logout-btn').style.display = 'block';
-            document.getElementById('guest-message').style.display = 'none';
-        } else {
-            document.getElementById('logout-btn').style.display = 'none';
-            document.getElementById('guest-message').style.display = 'block';
-        }
-    });
 });
 
 //------------------------------------------------------------------------------------------------------------------

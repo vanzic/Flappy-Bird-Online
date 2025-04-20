@@ -141,14 +141,25 @@ body {
   box-shadow: 0 20px 40px rgba(0,0,0,0.2);
   animation: fadeIn 0.4s ease;
   transition: all 0.3s;
-
   box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-
 }
 
 @keyframes fadeIn {
   from { transform: translateY(-20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+.verification-close-btn{
+  position: relative;
+  top: -10px; left: 48%;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 50%;
+  width: 1.8rem;
+  height: 1.8rem;
 }
 
 .close-btn {
@@ -374,7 +385,45 @@ body {
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   transform: scale(1.1);
 }
+#verification-timer {
+  text-align: center;
+  margin: 15px 0;
+  font-size: 0.9em;
+  color: #666;
+  min-height: 20px;
+}
 
+#verification-screen{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  width: 25vw;
+  height: 35vh;
+  text-align: center;
+}
+
+#resend-btn {
+  margin-top: 15px;
+  width: 100%;
+  padding: 12px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#verification-screen button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
 
 
 
@@ -401,6 +450,27 @@ body {
   font-style: italic;
 }
 
+.loader {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+#auth-message {
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  text-align: center;
+  display: none;
+}
 
 /*
 //------------------------------------------------------------------------------------------------------------------
