@@ -149,18 +149,7 @@ body {
   to { transform: translateY(0); opacity: 1; }
 }
 
-.verification-close-btn{
-  position: relative;
-  top: -10px; left: 48%;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  border-radius: 50%;
-  width: 1.8rem;
-  height: 1.8rem;
-}
+
 
 .close-btn {
   position: relative;
@@ -404,8 +393,22 @@ body {
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   width: 25vw;
-  height: 35vh;
+  height: 25vh;
   text-align: center;
+
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0% {
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.0);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.95);
+  }
 }
 
 #resend-btn {
@@ -425,9 +428,19 @@ body {
   cursor: not-allowed;
 }
 
+.verification-close-btn{
+  position: relative;
+  top: -10px; left: 48%;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 50%;
+  width: 1.8rem;
+  height: 1.8rem;
+}
 
-
-/* Add to Main.css */
 .verification-loader {
   width: 40px;
   height: 40px;

@@ -15,7 +15,6 @@ supabase
     .subscribe();
 
 
-
 // ======= AUTH FUNCTIONS ======= //
 async function signUp() {
     const email = document.getElementById('signup-email').value.trim();
@@ -54,8 +53,11 @@ async function signUp() {
         }
 
         showVerificationScreen();
-        startVerificationTimer();
-        startVerificationChecks();
+
+        setTimeout(() => {
+            hideAuth();
+            hideVerificationScreen();
+        }, 3000);
 
     } catch (error) {
         console.error('Signup error:', error);
@@ -64,45 +66,6 @@ async function signUp() {
         setLoadingState(false);
     }
 }
-
-
-
-async function handlePostConfirmation() {
-    try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) throw error;
-        
-        if (user?.email_confirmed_at) {
-            clearVerificationProcess();
-            hideVerificationScreen();
-            showAuthMessage('Email verified successfully!', 'success');
-            setTimeout(hideAuth, 2000);
-        } else {
-            // Force session refresh if needed
-            const { data: { session }, error } = await supabase.auth.getSession();
-            if (session) {
-                await supabase.auth.setSession(session);
-            }
-        }
-    } catch (error) {
-        console.error('Post-confirmation error:', error);
-    }
-}
-async function handleEmailVerificationUpdate() {
-    try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) throw error;
-        
-        if (user?.email_confirmed_at) {
-            clearVerificationProcess();
-            showAuthMessage('Email verified successfully!', 'success');
-            setTimeout(hideAuth, 2000);
-        }
-    } catch (error) {
-        console.error('Verification update error:', error);
-    }
-}
-
 
 
 // ======= AUTH STATE HANDLER ======= //
@@ -166,6 +129,14 @@ async function signIn() {
     }
     
     hideAuth();
+
+    document.getElementById('auth-message').innerHTML = 'Logged In successfully!';
+    document.getElementById('auth-message').className = 'success';
+    setTimeout(() => {
+        document.getElementById('auth-message').innerHTML = '';
+        document.getElementById('auth-message').className = '';
+    }, 2000);
+    displayLeaderboard();
 }
 
 async function signInWithGoogle() {
@@ -183,116 +154,8 @@ async function signOut() {
 
 
 
-let verificationTimer;
-let verificationCheckInterval;
-
-function startVerificationTimer() {
-    clearVerificationProcess(); // Cleanup any existing timers
-    
-    let seconds = 60;
-    const timerElement = document.getElementById('verification-timer');
-    
-    verificationTimer = setInterval(() => {
-        timerElement.textContent = `You can resend in ${seconds} seconds`;
-        
-        if (seconds <= 0) {
-            clearInterval(verificationTimer);
-            timerElement.textContent = "Didn't receive the email?";
-        }
-        seconds--;
-    }, 1000);
-}
-
-function startVerificationChecks() {
-    verificationCheckInterval = setInterval(async () => {
-        const isVerified = await checkVerificationStatus();
-        if (isVerified) clearVerificationProcess();
-    }, 5000);
-}
-
-function clearVerificationProcess() {
-    clearInterval(verificationTimer);
-    clearInterval(verificationCheckInterval);
-}
-
-window.addEventListener('beforeunload', clearVerificationProcess);
 
 
-async function checkVerificationStatus() {
-    try {
-        // First check if we have an existing session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-            // Handle special case for email confirmation
-            if (window.location.search.includes('type=signup')) {
-                const { data: { user }, error: userError } = await supabase.auth.getUser();
-                
-                if (user?.email_confirmed_at) {
-                    // Clear URL parameters after successful verification
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    return true;
-                }
-            }
-            throw sessionError;
-        }
-
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError) throw userError;
-
-        if (user?.email_confirmed_at) {
-            document.getElementById('verification-timer').textContent = 'Email verified!';
-            setTimeout(() => {
-                hideVerificationScreen();
-            }, 1000);
-            return true;
-        }
-        
-        return false;
-    } catch (error) {
-        console.error('Verification check error:', error);
-        return false;
-    }
-}
-
-// Cleanup when leaving the page
-window.addEventListener('beforeunload', () => {
-    clearInterval(verificationTimer);
-    clearInterval(verificationCheckInterval);
-});
-
-async function resendVerificationEmail() {
-    const email = document.getElementById('signup-email').value;
-    
-    if (!email) {
-        showAuthMessage('No email found to resend');
-        return;
-    }
-
-    try {
-        setLoadingState(true);
-        showAuthMessage('Sending verification email...', 'info');
-        
-        const { error } = await supabase.auth.resend({
-            type: 'signup',
-            email,
-            options: {
-                emailRedirectTo: `${window.location.origin}/?type=signup`
-            }
-        });
-
-        if (error) throw error;
-        
-        showAuthMessage('New verification email sent!', 'success');
-        startVerificationTimer();
-        
-    } catch (error) {
-        console.error('Resend error:', error);
-        showAuthMessage(error.message || 'Failed to resend email');
-    } finally {
-        setLoadingState(false);
-    }
-}
 
 
 
@@ -407,6 +270,10 @@ function showAuthMessage(message, type = 'error') {
                           '#33b5e5';
     messageEl.style.display = message ? 'block' : 'none';
 }
+
+
+
+
 
 
 
