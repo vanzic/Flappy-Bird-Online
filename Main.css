@@ -9,6 +9,7 @@ body {
   overflow: hidden;
 }
 
+
 #game-container {
   margin : 0 2vw 0 2vw;
 }
@@ -346,34 +347,6 @@ body {
 }
 
 
-
-#logout-btn{
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #e01313;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 16px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  transition: background 0.3s, box-shadow 0.3s;
-  z-index: 1000;
-}
-
-#logout-btn:hover{
-  background: #c01313;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
-
-#logout-btn:active{
-  background: #c01313;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  transform: scale(1.1);
-}
 #verification-timer {
   text-align: center;
   margin: 15px 0;
@@ -484,13 +457,8 @@ body {
   text-align: center;
   display: none;
 }
-#user-info p {
-  margin: 8px 0;
-  color: #fff;
-}
 
 #user-info button {
-  margin-top: 12px;
   padding: 8px 16px;
   background-color: #ff4444;
   color: white;
@@ -498,6 +466,7 @@ body {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s;
+  width: fit-content;
 }
 
 #user-info button:hover {
@@ -788,45 +757,3 @@ input:active{
   padding: 10px;
 }
 
-@media (max-width: 750px) {
-
-  #leaderboard{
-    position: static;
-    width: 90vw;
-    margin: 2vh auto;
-  }
-
-  #left-panel{
-    position: fixed;
-    width: 90vw;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    margin: 2vh auto;
-  }
-
-  body{
-    margin: 0;
-    display: block;
-    overflow: scroll;
-  }
-
-  .outer {
-    width: 100vw;
-  }
-
-  .inputs-outer {
-    width: 100vw;
-    height: 20vh;
-    background-color: antiquewhite;
-  }
-
-  .title-box {
-    width: 100vw;
-  }
-
-  .bird {
-    height: 4vh;
-    width: 4vh;
-  }
-}

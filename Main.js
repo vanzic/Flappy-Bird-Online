@@ -1,6 +1,7 @@
 // ======= SUPABASE INITIALIZATION ======= //
 const SUPABASE_URL = 'https://xvqiwbiryhztyrdfdfrf.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2cWl3YmlyeWh6dHlyZGZkZnJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5NjM1MjUsImV4cCI6MjA2MDUzOTUyNX0.kLFHzTeVNGw_RfmktIUrTwAOu06ILvmVgF8YkfKyIGs';
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
@@ -57,7 +58,7 @@ async function signUp() {
         setTimeout(() => {
             hideAuth();
             hideVerificationScreen();
-        }, 3000);
+        }, 5000);
 
     } catch (error) {
         console.error('Signup error:', error);
@@ -446,9 +447,17 @@ document.addEventListener('keydown' , function(event) {
     }
 });
 
+document.addEventListener('keyup', function(event) {
+    if (event.code === 'Space') {
+        isJumping = false;
+    }
+
+    bird.innerHTML = '<img src="img/bird-down.png" class="bird-img"></img>';
+});
 
 
-document.addEventListener('touchstart' , function(event) {
+
+outerMid.addEventListener('touchstart' , function(event) {
     isJumping = true;
     velocity = jumpStrength;
 
@@ -461,19 +470,15 @@ document.addEventListener('touchstart' , function(event) {
     }
 });
 
-document.addEventListener('keyup', function(event) {
-    if (event.code === 'Space') {
-        isJumping = false;
-    }
-
-    bird.innerHTML = '<img src="img/bird-down.png" class="bird-img"></img>';
-});
-
-document.addEventListener('touchend', function(event) {
+outerMid.addEventListener('touchend', function(event) {
     isJumping = false;
 
     bird.innerHTML = '<img src="img/bird-down.png" class="bird-img"></img>';
 });
+
+
+
+
 
 let outerTop = outerRect.top;
 

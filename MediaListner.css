@@ -1,0 +1,43 @@
+@media (max-width: 750px) {
+
+    #leaderboard{
+      position: static;
+      width: 90vw;
+      margin: 2vh auto;
+    }
+  
+    #left-panel{
+      position: fixed;
+      width: 82vw;
+      bottom: 0;
+      margin-left: 2vh;
+      margin-right: 2vh;
+      margin-bottom: 2vh;
+      border-radius: 50px;
+    }
+    
+    body{
+      margin: 0;
+      display: block;
+      overflow: scroll;
+    }
+  
+    .outer {
+      width: 100vw;
+    }
+  
+    .inputs-outer {
+      width: 100vw;
+      height: 20vh;
+      background-color: antiquewhite;
+    }
+  
+    .title-box {
+      width: 100vw;
+    }
+  
+    .bird {
+      height: 4vh;
+      width: 4vh;
+    }
+  }
