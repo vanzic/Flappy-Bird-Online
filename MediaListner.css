@@ -1,10 +1,4 @@
 @media (max-width: 750px) {
-
-    #leaderboard{
-      position: static;
-      width: 90vw;
-      margin: 2vh auto;
-    }
   
     #left-panel{
       position: fixed;
@@ -17,10 +11,11 @@
     }
 
     #leaderboard {
+      margin: 2vh auto;
       position: absolute;
+      height: 100vh;
       top: 0;
       left: -70vw;
-      height: 100vh;
       border-radius: 0;
       border-top-right-radius: 15px;
       width: 60vw;

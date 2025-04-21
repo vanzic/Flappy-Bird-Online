@@ -261,7 +261,7 @@ async function displayLeaderboard() {
         .from('scores')
         .select('nickname, score')
         .order('score', { ascending: false })
-        .limit(10);
+        .limit(100);
 
     const scoresList = document.getElementById('scores-list');
     scoresList.innerHTML = '';
