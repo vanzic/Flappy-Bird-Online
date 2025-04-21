@@ -33,7 +33,6 @@ body {
   margin-right: 2vw;
   height: fit-content;
   max-height: 100vh;
-  overflow: scroll;
   background: linear-gradient(135deg, #1f1c2c, #928dab);
   border-radius: 15px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
