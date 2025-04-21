@@ -19,6 +19,14 @@ body {
   margin : 0 2vw 0 2vw;
 }
 
+#openLeaderboard-btn-img{
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+#openLeaderboard-btn{
+  display: none;
+}
 
 #leaderboard {
   padding: 20px;
@@ -31,6 +39,8 @@ body {
   width: 21vw;
   z-index: 1000;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  transition: left 0.3s ease;
 }
 
 #leaderboard h2 {
@@ -80,13 +90,16 @@ body {
 
 
 #left-panel {
-  width: 19vw;
-  height: fit-content;
+  position: fixed;
+  bottom: 0;
+  margin-bottom: 2vh;
+  border-radius: 100px;
+  width: 40vw;
+  padding: 16px 20px;
   z-index: 1000;
   margin-left: 2vw;
   background: linear-gradient(135deg, #1f1c2c, #928dab);
-  padding: 16px 20px;
-  border-radius: 12px;
+  
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
   color: #fff;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

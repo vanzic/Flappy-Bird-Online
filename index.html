@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
     <title>Flappy Bird</title>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400&display=swap" rel="stylesheet">
@@ -179,10 +179,26 @@
 
     </div>
 
-    <div id="leaderboard" style="display: block;">
+    <div id="leaderboard" onclick="event.stopPropagation()">
       <h2>Top Scores</h2>
       <ol id="scores-list"></ol>
     </div>
+
+    <!-- Closing Leaderboard -->
+    <script>
+      document.addEventListener('click', (event)=>{
+        if (event.target.id !== "leaderboard" && 
+        event.target.id !== "openLeaderboard-btn" && 
+        event.target.id !== "openLeaderboard-btn-img") {
+          closeLeaderboard();
+        }
+      });
+    </script>
+    
+    <!-- Leaderboard Opening button -->
+    <button id="openLeaderboard-btn" onclick="openLeaderboard()">
+      <img id="openLeaderboard-btn-img" src="img/trophy.png">
+    </button>
     
     <script src="Main.js"></script>
 

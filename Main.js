@@ -249,6 +249,13 @@ async function saveScore(newScore) {
     updateUserPanel();
 }
 
+function openLeaderboard(){
+    const leaderboard = document.getElementById('leaderboard').style.left = 0;
+}
+function closeLeaderboard(){
+    const leaderboard = document.getElementById('leaderboard').style.left = '-70vw';
+}
+
 async function displayLeaderboard() {
     const { data, error } = await supabase
         .from('scores')
