@@ -398,7 +398,7 @@ let bird = document.getElementsByClassName('bird')[0];
 
 // Gravity and jump strength scaled to outerMid height for responsiveness
 
-const gravity = outerMid.offsetHeight * 0.00025// Scaled gravity strength
+const gravity = outerMid.offsetHeight * 0.0003// Scaled gravity strength
 const jumpStrength = -outerMid.offsetHeight * 0.0065; // Scaled jump strength
 
 let isJumping = false; 
@@ -543,20 +543,20 @@ let bar4 = {
 let right = [bar1, bar2, bar3, bar4];
 let left = [];
 
-let initialGap = outerMid.offsetHeight * 0.4; // Scaled initial gap between bars
+let initialGap = outerMid.offsetHeight * 0.5 ; // Scaled initial gap between bars
 let gap = initialGap;
 let min = outerMid.offsetHeight * 0.2; // Scaled min bar height
 let max = outerMid.offsetHeight * 0.4; // Scaled max bar height
 
-let gapDecreaseFactor = outerMid.offsetHeight * 0.0005; // Scale gap decrease factor
-let initialBarVelocity = outerMid.offsetWidth * 0.003; // Scale bar speed based on container width
+let gapDecreaseFactor = outerMid.offsetHeight * 0.00045; // Scale gap decrease factor
+let initialBarVelocity = outerMid.offsetWidth * 0.002; // Scale bar speed based on container width
 
 let barVelocity = initialBarVelocity;
 
 let barGapFactor = 0.6;
 if(window.innerWidth < 750)barGapFactor = 0.5;
 
-let speedIncreaseFactor = outerMid.offsetWidth * 0.00003; // Scale speed increase factor
+let speedIncreaseFactor = outerMid.offsetWidth * 0.000025; // Scale speed increase factor
 
 function getRandomNumber() {
     return Math.floor(Math.random() * (max - min + 1)) + min;
