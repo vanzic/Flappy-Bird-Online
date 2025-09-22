@@ -38,7 +38,7 @@ body {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   color: white;
   width: 21vw;
-  z-index: 1000;
+  z-index: 100;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
   transition: left 0.3s ease;
@@ -97,7 +97,7 @@ body {
   border-radius: 100px;
   width: 40vw;
   padding: 16px 20px;
-  z-index: 1000;
+  z-index: 100;
   margin-left: 2vw;
   background: linear-gradient(135deg, #1f1c2c, #928dab);
   
@@ -775,5 +775,6 @@ input:active{
   margin: 10px;
   padding: 10px;
 }
+
 
 
