@@ -145,7 +145,7 @@ body {
   height: 100vh;
   width: 100vw;
   background: rgba(0,0,0,0.5);
-  z-index: 1;
+  z-index: 200;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -775,4 +775,5 @@ input:active{
   margin: 10px;
   padding: 10px;
 }
+
 
