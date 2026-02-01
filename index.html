@@ -1,206 +1,274 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en">
 
-    <title>Flappy Bird</title>
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="Main.css">
-    <link rel="stylesheet" href="images.css">
-    <link rel="stylesheet" href="MediaListner.css">
-    
-    
-    <!-- Supabase script -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  </head>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="description" content="A real-time chat application to connect with friends." />
+  
+  <title>Chat - Connect & Communicate</title>
+  
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png">
 
-  <body>  
+  <!-- Preconnect to Supabase -->
+  <link rel="preconnect" href="https://cyporxvxzrzgshiajtvi.supabase.co" />
 
-    <!-- Verification Container Overlay -->
-    <div id="verification-screen" style="display: none;">
-      <button class="verification-close-btn" onclick="hideVerificationScreen()" aria-label="Close">&times;</button>
-      <div class="auth-header">
-        <h2>Verify Your Email</h2>
-        <p>Check your inbox for the verification link</p>
-        <h3>After Confirmation, close this banner and LogIn to continue</h3>
-      </div>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  
+  <!-- Modules -->
+  <script type="module" src="supabase.js" defer></script>
+  <script type="module" src="ui.js" defer></script>
+</head>
+
+<body>
+
+  <!-- Network Status Toast -->
+  <div id="network-status" class="network-status hidden" role="alert" aria-live="assertive">
+    <div class="network-message">
+      <span class="network-icon">📡</span>
+      <span id="network-text">Connection lost. Reconnecting...</span>
     </div>
+  </div>
 
+  <!-- Global Toast Notification -->
+  <div id="toast" class="toast hidden" role="alert" aria-live="polite"></div>
 
-
-
-
-    <!-- Login/SignUp Container Overlay -->
-    <div id="auth-container" style="display: none;">
-      <div class="auth-card">
-
-        <div id="auth-content">
-          <button class="close-btn" onclick="hideAuth()" aria-label="Close">&times;</button>
+  <!-- AUTH CONTAINER -->
+  <main id="auth-container" class="auth-container">
     
-          <div class="auth-header">
-            <h2 class="auth-title">Welcome to Flappy Bird</h2>
-            <p class="auth-subtitle">Join the flock and rise to the top!</p>
+    <!-- Landing Page -->
+    <section id="landing-page" class="auth-page fade-in">
+      <div class="auth-card glass-panel">
+        <header class="auth-header">
+          <div class="logo-circle">💬</div>
+          <h1>Chat App</h1>
+          <p>Connect with friends — fast, simple, secure.</p>
+        </header>
+
+        <div class="auth-actions">
+          <button class="btn btn--primary btn--lg" id="landing-login-btn">
+            <span class="btn-text">Login</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+          <button class="btn btn--outline btn--lg" id="landing-signup-btn">
+            <span class="btn-text">Sign Up</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Login Page -->
+    <section id="login-page" class="auth-page hidden fade-in">
+      <div class="auth-card glass-panel">
+        <header class="auth-header">
+          <h2>Welcome Back</h2>
+          <p>Sign in to continue</p>
+        </header>
+
+        <form id="login-form" class="auth-form" autocomplete="on">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email</label>
+            <input type="email" id="login-email" class="form-control" required autocomplete="email" placeholder="you@example.com" />
           </div>
-      
-          <div class="auth-tabs">
-            <button class="tab-btn active" onclick="switchTab('login')" id="login-tab">Login</button>
-            <button class="tab-btn" onclick="switchTab('signup')" id="signup-tab">Sign Up</button>
+          
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password</label>
+            <input type="password" id="login-password" class="form-control" required autocomplete="current-password" placeholder="••••••••" />
           </div>
+          
+          <button type="submit" class="btn btn--primary btn--full-width btn--lg" id="login-btn">
+            <span class="btn-text">Sign In</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </form>
+
+        <footer class="auth-footer">
+          <p>Don't have an account? <a href="#" id="signup-link">Sign up here</a></p>
+        </footer>
+      </div>
+    </section>
+
+    <!-- Sign Up Page -->
+    <section id="signup-page" class="auth-page hidden fade-in">
+      <div class="auth-card glass-panel">
+        <header class="auth-header">
+          <h2>Create Account</h2>
+          <p>Join us and start chatting</p>
+        </header>
+
+        <form id="signup-form" class="auth-form" autocomplete="on">
+          <div class="form-group">
+            <label class="form-label" for="signup-nickname">Nickname</label>
+            <input type="text" id="signup-nickname" class="form-control" required minlength="3" maxlength="20" placeholder="@username" autocomplete="username" />
+            <div id="nickname-availability" class="nickname-status hidden"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Email</label>
+            <input type="email" id="signup-email" class="form-control" required autocomplete="email" placeholder="you@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Password</label>
+            <input type="password" id="signup-password" class="form-control" required minlength="6" autocomplete="new-password" placeholder="Min. 6 characters" />
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--full-width btn--lg" id="signup-btn">
+            <span class="btn-text">Create Account</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </form>
+
+        <footer class="auth-footer">
+          <p>Already have an account? <a href="#" id="login-link">Sign in here</a></p>
+        </footer>
+      </div>
+    </section>
+  </main>
+
+  <!-- CHAT APPLICATION CONTAINER -->
+  <div id="chat-container" class="chat-container hidden" role="application" aria-label="Chat Application">
+    
+    <!-- Header / Navbar -->
+    <header class="chat-header glass-header">
+      <div class="header-left">
+        <button id="open-friends-btn" class="btn btn--icon mobile-only" aria-label="Open friends list">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <h1 class="app-title">Chat App</h1>
+      </div>
       
-          <div class="auth-body">
-            <!-- LOGIN FORM -->
-            <form id="login-form" class="auth-form active" onsubmit="event.preventDefault(); signIn();">
-              <div class="input-group">
-                <input type="email" id="email" placeholder="" required>
-                <label for="email">Email</label>
-              </div>
-      
-              <div class="input-group">
-                <input type="password" id="password" placeholder="" required>
-                <label for="password" >Password</label>
-              </div>
-      
-              <button type="submit" class="auth-btn primary">Continue</button>
-            </form>
-      
-            <!-- SIGNUP FORM -->
-            <form id="signup-form" class="auth-form" onsubmit="event.preventDefault(); signUp();">
-              <div class="input-group">
-                <input type="email" id="signup-email" placeholder="" required>
-                <label for="signup-email">Email</label>
-              </div>
-      
-              <div class="input-group">
-                <input type="text" id="nickname" placeholder="" required>
-                <label for="nickname">Nickname</label>
-              </div>
-      
-              <div class="input-group">
-                <input type="password" id="signup-password" placeholder="" required>
-                <label for="signup-password">Password</label>
-              </div>
-      
-              <button type="submit" class="auth-btn primary">Create Account</button>
-              <div class="auth-separator"><span>or</span></div>
-              
-              <button type="button" class="auth-btn google-btn" onclick="signInWithGoogle()">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" id="google-logo" alt="Google logo">
-                Continue with Google
-              </button>
-            </form>
-      
-            <p class="auth-footer">
-              <span id="switch-text">Don’t have an account?</span>
-              <button class="switch-mode" onclick="toggleAuthMode()">Sign up instead</button>
-            </p>
+      <div class="header-right">
+        <div id="connection-status" class="connection-status" aria-live="polite" title="Connection Status">
+          <span class="status-indicator online"></span>
+        </div>
+        <div id="current-user-name" class="current-user badge"></div>
+        <button id="logout-btn" class="btn btn--sm btn--ghost" aria-label="Logout">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="chat-layout">
+      <!-- SIDEBAR (Friends List) -->
+      <aside id="friends-panel" class="friends-panel glass-panel-side">
+        <div class="panel-header">
+          <!-- Search -->
+          <div class="search-wrapper">
+            <input id="friend-search" class="form-control search-input" placeholder="Find people..." autocomplete="off" />
+            <span class="search-icon">🔍</span>
+          </div>
+          
+          <div class="panel-controls">
+            <span class="panel-title">Friends <span id="friends-count" class="count-badge">0</span></span>
+            <button id="refresh-friends-btn" class="btn btn--icon btn--sm" title="Refresh list">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            </button>
           </div>
         </div>
-        
-    
-        <div id="auth-message" class="auth-message"></div>
-      </div>
 
-    </div>
-
-
-
-    <div id="left-panel">
-      <div id="guest-message" style="display: block;">
-        <p>
-          Playing as guest – 
-          <button onclick="showAuth()">Sign up to save scores!</button>
-        </p>
-      </div>
-
-      <div id="user-info" style="display: none; ">
-        <p style="
-          margin: 0;
-          line-height: 1.6;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        ">
-        <span style="display: inline-block; font-size: 1.2rem;">Logged In :</span>
-        <span>
-          <span style="color: yellow; font-size: 1.4rem;" id="user-nickname"></span> 
-          &nbsp;
-          &nbsp;
-          &nbsp;
-          <span style="color: lightcoral; font-size: 1.4rem;" id="user-highscore"></span>
-        </span>
-        <button style="display: inline-block; border-radius: 50px; padding: 10px 20px;" onclick="signOut()">Log Out</button>
-        </p>
-        
-      </div>
-
-    </div>
-
-
-
-    <div id="game-container">
-
-      <center>
-
-        <div class="outer">
-
-          <div class="title-box">
-            <img class="title-img" src="img/title.png">
+        <!-- Scrollable Content -->
+        <div class="friends-scroll-area">
+           <!-- Friend Requests -->
+          <div id="friend-requests-section" class="friend-requests-section">
+            <div class="section-label">Requests <span id="requests-count" class="count-badge primary">0</span></div>
+            <div id="friend-requests" class="friend-requests-list"></div>
           </div>
 
-          <div class="outer-mid">
+          <!-- Friends List -->
+          <div id="friends-list" class="friends-list">
+            <div class="loading-placeholder">
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+            </div>
+          </div>
+        </div>
+      </aside>
 
-            <div id="score"><span>0</span></div>
+      <!-- MAIN CHAT AREA -->
+      <main class="chat-main-area">
+        
+        <!-- Welcome / Empty State -->
+        <section id="welcome-state" class="welcome-state fade-in">
+          <div class="welcome-content">
+            <div class="welcome-illustration">👋</div>
+            <h2>Welcome to Chat App</h2>
+            <p>Select a friend from the sidebar or search for someone to start chatting.</p>
+          </div>
+        </section>
 
-            <div id="game-over"><img class="GameOver-img" src="img/GameOver.png"></div>
-
-            <div class="bird"></div>
-
-            <div class="bars">
-              <div class="bar-1a"><img class="pipe-upper" src="img/pipe-upper.png"></div>
-              <div class="bar-1b"><img class="pipe-lower" src="img/pipe-lower.png"></div>
-
-              <div class="bar-2a"><img class="pipe-upper" src="img/pipe-upper.png"></div>
-              <div class="bar-2b"><img class="pipe-lower" src="img/pipe-lower.png"></div>
-
-              <div class="bar-3a"><img class="pipe-upper" src="img/pipe-upper.png"></div>
-              <div class="bar-3b"><img class="pipe-lower" src="img/pipe-lower.png"></div>
-
-              <div class="bar-4a"><img class="pipe-upper" src="img/pipe-upper.png"></div>
-              <div class="bar-4b"><img class="pipe-lower" src="img/pipe-lower.png"></div>
+        <!-- Active Chat Window -->
+        <section id="chat-window" class="chat-window hidden" aria-live="polite">
+          
+          <div class="chat-window-header glass-header-secondary">
+            <button id="mobile-back-btn" class="btn btn--icon mobile-only" aria-label="Back to friends">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            
+            <div class="chat-recipient-info">
+              <div class="recipient-avatar" aria-hidden="true"></div>
+              <div class="recipient-details">
+                <h3 id="recipient-name"></h3>
+                <span id="recipient-nickname" class="subtitle"></span>
+              </div>
             </div>
 
+            <div class="chat-window-actions">
+              <button id="refresh-messages-btn" class="btn btn--icon btn--sm" title="Refresh messages">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              </button>
+              <button id="friend-options-btn" class="btn btn--icon btn--sm" aria-label="Friend options">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+              </button>
+            </div>
           </div>
 
-        </div>
+          <!-- Messages List -->
+          <div id="messages-area" class="messages-area" tabindex="0"></div>
 
-      </center>
+          <!-- Message Input -->
+          <form id="message-form" class="message-form glass-panel-bottom" autocomplete="off">
+            <textarea id="message-input" class="message-input" rows="1" placeholder="Type a message..." aria-label="Type a message"></textarea>
+            <button type="submit" class="btn btn--primary btn--circle" id="send-btn" aria-label="Send message">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+          </form>
 
+        </section>
+      </main>
     </div>
 
-    <div id="leaderboard" onclick="event.stopPropagation()">
-      <h2>Top Scores</h2>
-      <ol id="scores-list"></ol>
+    <!-- Dropdown Menu (Desktop/Mobile) -->
+    <div id="friend-options-menu" class="dropdown-menu hidden glass-panel">
+      <button class="menu-item danger" id="remove-friend-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        Remove Friend
+      </button>
+      <button class="menu-item danger" id="block-friend-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+        Block User
+      </button>
     </div>
 
-    <!-- Closing Leaderboard -->
-    <script>
-      document.addEventListener('click', (event)=>{
-        if (event.target.id !== "leaderboard" && 
-        event.target.id !== "openLeaderboard-btn" && 
-        event.target.id !== "openLeaderboard-btn-img") {
-          closeLeaderboard();
-        }
-      });
-    </script>
-    
-    <!-- Leaderboard Opening button -->
-    <button id="openLeaderboard-btn" onclick="openLeaderboard()">
-      <img id="openLeaderboard-btn-img" src="img/trophy.png">
-    </button>
-    
-    <script src="Main.js"></script>
+  </div>
 
-  </body>
+  <!-- Confirmation Modal -->
+  <div id="confirmation-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-content glass-panel">
+      <h3 id="modal-title" class="modal-title"></h3>
+      <p id="modal-body" class="modal-body"></p>
+      <div class="modal-actions">
+        <button id="modal-cancel" class="btn btn--outline">Cancel</button>
+        <button id="modal-confirm" class="btn btn--danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+</body>
 </html>
