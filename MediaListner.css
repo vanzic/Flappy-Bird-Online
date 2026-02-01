@@ -1,0 +1,91 @@
+@media (max-width: 750px) {
+  
+    #left-panel{
+      position: fixed;
+      width: 82vw;
+      bottom: 0;
+      margin-left: 2vh;
+      margin-right: 2vh;
+      margin-bottom: 2vh;
+      border-radius: 50px;
+    }
+
+    #leaderboard {
+      margin: 2vh auto;
+      position: absolute;
+      height: 100vh;
+      top: 0;
+      left: -70vw;
+      border-radius: 0;
+      border-top-right-radius: 15px;
+      width: 60vw;
+      padding: 20px;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      color: white;
+      z-index: 1000;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #openLeaderboard-btn{
+      display: flex;
+      justify-content: end;
+      align-items: center;
+      padding-right: 4%;
+      position: absolute;
+      top: 15%; 
+      transform: translateX(-45%);
+
+      background: none;
+      transition: all 0.3s;
+      border-radius: 50px;
+      width: 8rem;
+      height: 4rem;
+      border: 2px double #ffd700;
+      background: linear-gradient(135deg, #ffd700, #ff4500);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    
+      animation: shine 2s ease-in-out infinite;
+    }
+
+    #openLeaderboard-btn:active{
+      background: linear-gradient(135deg, #ffd700, #ff4500);
+      border-color: #ff4500;
+      transform: translateX(-42px)
+    }
+    
+    @keyframes shine {
+      0% { border-color: #ffd700; }
+      50% { border-color:  #ef8761;; }
+      100% { border-color: #ffd700; }
+    }
+    
+    body{
+      margin: 0;
+      display: block;
+    }
+
+    #game-container {
+      margin : 0;
+    }
+  
+    .outer {
+      width: 100vw;
+    }
+  
+    .inputs-outer {
+      width: 100vw;
+      height: 20vh;
+      background-color: antiquewhite;
+    }
+  
+    .title-box {
+      width: 100vw;
+    }
+  
+    .bird {
+      height: 4vh;
+      width: 4vh;
+    }
+
+  }
